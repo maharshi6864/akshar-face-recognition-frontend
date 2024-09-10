@@ -1,38 +1,57 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../apis/register";
 import { useForm } from "react-hook-form";
 
-const EditModel = ({ setShow, students, show, loadingModel, editStudent }) => {
+const EditModel = ({
+  setShow,
+  updateStudent,
+  show,
+  loadingModel,
+  editStudent,
+}) => {
   const handleClose = () => setShow(false);
 
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm();
 
   const navigate = useNavigate();
 
-  const password = watch("password");
+  const disImage = useRef(null);
+
+  const face_image = watch("face_image");
+
+  const handleImageOnChange = (event) => {
+    const file = event.target.files[0];
+    disImage.current.src = URL.createObjectURL(file);
+  };
 
   const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    if (editStudent.enrollment_no) {
+      setValue("enrollment_no", editStudent.enrollment_no);
+      setValue("full_name", editStudent.full_name);
+      setValue("age", editStudent.age);
+      setValue("gender", editStudent.gender); // Update the form field
+      setValue("_id", editStudent._id); // Update the form field
+    }
+    // You can do the same for other fields like this:
+    // setValue('field_name', editStudent.some_other_field);
+  }, [editStudent]);
 
   const onSubmit = async (data, event) => {
     event.preventDefault();
     setLoading(true);
-    try {
-      console.log(data);
-      const response = await registerUser(data);
-      console.log(response);
-      if (response.message === "success") {
-        setLoading(false);
-      }
-    } catch (error) {
-      alert(error);
+    const response = updateStudent(data);
+    if (response) {
+      setLoading(false);
     }
   };
 
@@ -71,12 +90,17 @@ const EditModel = ({ setShow, students, show, loadingModel, editStudent }) => {
                       Enrollment Number
                     </label>
                     <input
+                      type="hidden"
+                      value={editStudent._id}
+                      name="_id"
+                      id=""
+                      {...register("_id", {})}
+                    />
+                    <input
                       type="text"
                       className="form-control"
                       id="enrollment-number"
                       aria-describedby="emailHelp"
-                      value={editStudent.enrollment_no}
-                      disabled={true}
                       {...register("enrollment_no", {
                         required: "Enrollment Number is required.",
 
@@ -102,7 +126,6 @@ const EditModel = ({ setShow, students, show, loadingModel, editStudent }) => {
                       type="text"
                       className="form-control"
                       id="full_name"
-                      value={editStudent.full_name}
                       aria-describedby="emailHelp"
                       {...register("full_name", {
                         required: "Full name must be required.",
@@ -134,6 +157,7 @@ const EditModel = ({ setShow, students, show, loadingModel, editStudent }) => {
                           {...register("gender", {
                             required: "You must select one gender",
                           })}
+                          defaultChecked={editStudent.gender === "male"}
                         />
                         <label className="form-check-label" htmlFor="male">
                           Male
@@ -148,6 +172,7 @@ const EditModel = ({ setShow, students, show, loadingModel, editStudent }) => {
                           id="female"
                           value="female"
                           {...register("gender")}
+                          defaultChecked={editStudent.gender === "female"}
                         />
                         <label className="form-check-label" htmlFor="female">
                           Female
@@ -162,6 +187,7 @@ const EditModel = ({ setShow, students, show, loadingModel, editStudent }) => {
                           id="other"
                           value="other"
                           {...register("gender")}
+                          defaultChecked={editStudent.gender === "other"}
                         />
                         <label className="form-check-label" htmlFor="female">
                           Other
@@ -185,7 +211,6 @@ const EditModel = ({ setShow, students, show, loadingModel, editStudent }) => {
                       type="text"
                       className="form-control"
                       id="age"
-                      value={editStudent.age}
                       {...register("age", {
                         pattern: {
                           value: /^[0-9]{2}$/,
@@ -201,29 +226,48 @@ const EditModel = ({ setShow, students, show, loadingModel, editStudent }) => {
                 </div>
               </div>
               <div className="mb-4">
-                <label className="form label" htmlFor="upload">
-                  Upload
-                </label>
-                <input
-                  type="file"
-                  className="form-control"
-                  name="face_image"
-                  id="inputGroupFile01"
-                  {...register("face_image", {
-                    required: "File upload is required",
-                    validate: {
-                      size: (files) =>
-                        files[0]?.size < 2 * 1024 * 1024 ||
-                        "File size must be less than 2MB", // Example: 2MB limit
-                      type: (files) =>
-                        ["image/jpeg", "image/png"].includes(files[0]?.type) ||
-                        "Only JPEG or PNG files are allowed", // Example: restrict to specific file types
-                    },
-                  })}
-                />
-                {errors.face_image && (
-                  <p className="text-danger">{errors.face_image.message}</p>
-                )}
+                <div className="row align-items-center">
+                  <div className="col-6 ">
+                    {" "}
+                    <label className="form label" htmlFor="upload">
+                      Change Face Image
+                    </label>
+                    <input
+                      type="file"
+                      className="form-control"
+                      name="face_image"
+                      id="inputGroupFile01"
+                      {...register("face_image", {
+                        validate: {
+                          size: (files) =>
+                            !files[0] ||
+                            files[0]?.size < 2 * 1024 * 1024 ||
+                            "File size must be less than 2MB",
+                          type: (files) =>
+                            !files[0] ||
+                            ["image/jpeg", "image/png"].includes(
+                              files[0]?.type
+                            ) ||
+                            "Only JPEG or PNG files are allowed",
+                        },
+                        onChange: handleImageOnChange,
+                      })}
+                    />
+                    {errors.face_image && (
+                      <p className="text-danger">{errors.face_image.message}</p>
+                    )}
+                  </div>
+                  <div className="col-6">
+                    <div className="w-100">
+                      <img
+                        src={`http://localhost:5001/${editStudent.file_path}`}
+                        alt=""
+                        ref={disImage}
+                        style={{ height: "250px", width: "100%" }}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
               {loading ? (
                 <button
@@ -237,7 +281,7 @@ const EditModel = ({ setShow, students, show, loadingModel, editStudent }) => {
                 </button>
               ) : (
                 <button type="submit" className="btn btn-primary w-100">
-                  Register
+                  Update
                 </button>
               )}
             </form>

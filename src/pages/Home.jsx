@@ -12,6 +12,7 @@ import {
   deleteStudent,
   getStudentDetails,
   trainMultipleStudent,
+  updateStudentDetails,
 } from "../apis/studentAction";
 import EditModel from "../components/EditModel";
 
@@ -77,25 +78,27 @@ const Home = () => {
   const handleStudentDelete = async (student_id) => {
     const response = await deleteStudent({ student_id });
     if (response.status) {
-      setLoading(true);
-      const response = await loadStudents();
-      if (response.message === "success") {
-        let newStudents = response.students.map((student) => {
-          // Check if the student already has a present/absent status
-          const status = statuses[student.id] || {
-            present: false,
-            absent: false,
-          };
-          return {
-            ...student,
-            selected: false,
-            ...status, // Retain their present/absent status
-          };
-        });
-        setStudents(newStudents);
-        setLoading(false);
-      }
+      refreshTable();
     }
+  };
+
+  const refreshTable = async () => {
+    setLoading(true);
+    const response = await loadStudents();
+    let newStudents = response.students.map((student) => {
+      // Check if the student already has a present/absent status
+      const status = statuses[student.id] || {
+        present: false,
+        absent: false,
+      };
+      return {
+        ...student,
+        selected: false,
+        ...status, // Retain their present/absent status
+      };
+    });
+    setStudents(newStudents);
+    setLoading(false);
   };
 
   const handleStudentSelect = (id) => {
@@ -158,7 +161,14 @@ const Home = () => {
 
   const [show, setShow] = useState(false);
   const [loadingModel, setLoadingModel] = useState(false);
-  const [editStudent, setEditStudent] = useState({});
+  const [editStudent, setEditStudent] = useState({
+    _id: "",
+    age: "",
+    enrollment_no: "",
+    file_path: "",
+    full_name: "",
+    gender: "",
+  });
   const handleStudentEdit = async (data) => {
     setLoadingModel(true);
     setShow(true);
@@ -172,6 +182,17 @@ const Home = () => {
   const today = `${date.getDate()}/${
     date.getMonth() + 1
   }/${date.getFullYear()}`;
+
+  const updateStudent = async (data) => {
+    const response = await updateStudentDetails(data);
+    if (response.status) {
+      setLoading(false);
+      refreshTable();
+      setShow(false);
+      return true;
+    }
+    return false;
+  };
 
   return (
     <div className="d-flex justify-content-center align-items-center h-100 w-100">
@@ -255,6 +276,7 @@ const Home = () => {
           setShow={setShow}
           editStudent={editStudent}
           loadingModel={loadingModel}
+          updateStudent={updateStudent}
         ></EditModel>
       </div>
     </div>

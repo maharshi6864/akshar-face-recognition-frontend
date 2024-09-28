@@ -27,7 +27,7 @@ const CameraComponent = ({ onFrameCaptured }) => {
     // Capture frames at regular intervals
     const intervalId = setInterval(() => {
       captureFrame();
-    }, 2000); // Capture frame every 1000 milliseconds (1 second)
+    }, 500); // Capture frame every 1000 milliseconds (1 second)
 
     return () => {
       clearInterval(intervalId); // Clear interval when the component unmounts

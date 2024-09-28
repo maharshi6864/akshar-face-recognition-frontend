@@ -1,4 +1,4 @@
-import { GLOBAL_URL } from "./globalUrl";
+import { GLOBAL_URL, GLOBAL_URL_2 } from "./globalUrl";
 
 export const loadStudents = async () => {
   const response = await fetch(GLOBAL_URL + "getStudents", {
@@ -40,5 +40,22 @@ export const sendFrameToBackend = async (frameDataUrl) => {
     },
     body: JSON.stringify({ image: frameDataUrl }), // Send the image data
   });
+  return response.json();
+};
+
+export const springRegister = async (data) => {
+  const response = await fetch(GLOBAL_URL_2 + "register/student", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    alert("Invalid Username or password");
+    throw new Error("Network response was not ok");
+  }
   return response.json();
 };

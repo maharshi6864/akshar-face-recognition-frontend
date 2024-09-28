@@ -11,10 +11,10 @@ export default defineConfig({
     ),
   },
   server: {
-    // https: {
-    //   key: fs.readFileSync("./localhost.key"),
-    //   cert: fs.readFileSync("./localhost.crt"),
-    // },
+    https: {
+      key: fs.readFileSync("./localhost.key"),
+      cert: fs.readFileSync("./localhost.crt"),
+    },
     host: "0.0.0.0",
   },
 });

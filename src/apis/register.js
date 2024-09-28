@@ -7,6 +7,7 @@ export const registerUser = async (data) => {
   formData.append("full_name", data.full_name);
   formData.append("gender", data.gender);
   formData.append("age", data.age);
+  formData.append("email", data.email);
   formData.append("face_image", data.face_image[0]);
   const response = await fetch(GLOBAL_URL + "register-student", {
     method: "POST",

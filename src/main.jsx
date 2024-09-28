@@ -6,6 +6,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import CameraComponent from "./components/CameraComponent";
+import MapLocation from "./pages/MapLocation";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
   {
     path: "/test",
     element: <CameraComponent />,
+  },
+  {
+    path: "/mapClassRoom",
+    element: <MapLocation />,
   },
 ]);
 

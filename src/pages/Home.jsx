@@ -149,10 +149,11 @@ const Home = () => {
 
   const handleOnClickTest = async () => {
     setTestLoading(true);
-    const response = await testModel();
-    if (response.status) {
-      setTestLoading(false);
-    }
+    navigate("/test");
+    // const response = await testModel();
+    // if (response.status) {
+    //   setTestLoading(false);
+    // }
   };
 
   const handleOnCheckPresentAbsent = async (student) => {
@@ -199,7 +200,8 @@ const Home = () => {
       <div className="card w-75 h-75">
         <div className="card-header">
           <h2>
-            Student Attendance Table <span className="fs-5">({today})</span>
+            Student Attendance Table {window.location.hostname}{" "}
+            <span className="fs-5">({today})</span>
           </h2>
         </div>
         <div className="row">

@@ -1,3 +1,3 @@
-export const GLOBAL_URL = `http://${window.location.hostname}:5001/`;
+export const GLOBAL_URL = `https://${window.location.hostname}:5001/`;
 
-// src/App.js or other components
+export const GLOBAL_URL_2 = `https://${window.location.hostname}:8080/`;
